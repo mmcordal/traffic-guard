@@ -11,7 +11,7 @@ import (
 
 type BucketRepository interface {
 	UpsertBucket(ctx context.Context, bucket *model.TrafficBucket) (*model.TrafficBucket, error)
-	BucketByDomainAndStart(ctx context.Context, domain string, startTime time.Time) ([]*model.TrafficBucket, error)
+	BucketByDomainAndStartTime(ctx context.Context, domain string, startTime time.Time) ([]*model.TrafficBucket, error)
 }
 
 type bucketRepository struct {
@@ -48,7 +48,7 @@ func (r *bucketRepository) UpsertBucket(ctx context.Context, bucket *model.Traff
 	return bucket, nil
 }
 
-func (r *bucketRepository) BucketByDomainAndStart(ctx context.Context, domain string, startTime time.Time) ([]*model.TrafficBucket, error) {
+func (r *bucketRepository) BucketByDomainAndStartTime(ctx context.Context, domain string, startTime time.Time) ([]*model.TrafficBucket, error) {
 	var bucket []*model.TrafficBucket
 	err := r.db.NewSelect().Model(&bucket).
 		Where("domain = ?", domain).

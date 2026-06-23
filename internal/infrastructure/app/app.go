@@ -1,14 +1,18 @@
 package app
 
+import "C"
 import (
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+	"traffic-guarder/internal/cron"
 	"traffic-guarder/internal/infrastructure/cache"
 	"traffic-guarder/internal/infrastructure/config"
 	"traffic-guarder/internal/infrastructure/database"
 	"traffic-guarder/internal/infrastructure/errorsx"
+	"traffic-guarder/internal/repository"
+	"traffic-guarder/internal/service"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -18,8 +22,10 @@ import (
 type App struct {
 	FiberApp *fiber.App
 	DB       *bun.DB
-	Redis    *cache.RedisClient
 	Cfg      *config.Config
+	Bc       cache.BucketCache
+	As       service.AnomalyService
+	Br       repository.BucketRepository
 }
 
 type IRouter interface {
@@ -48,11 +54,22 @@ func New(router IRouter) *App {
 		cfg.Redis.Host + ":" + cfg.Redis.Port,
 	)
 
+	bc := cache.NewBucketCache(redisClient)
+
+	// repositories
+	br := repository.NewBucketRepository(db)
+	dc := repository.NewDomainCheck(db)
+	ar := repository.NewAnomalyRepository(db)
+
+	as := service.NewAnomalyService(ar, dc, bc, br)
+
 	app := &App{
 		FiberApp: fiberApp,
 		DB:       db,
-		Redis:    redisClient,
 		Cfg:      cfg,
+		Bc:       bc,
+		As:       as,
+		Br:       br,
 	}
 
 	router.RegisterRouter(app)
@@ -61,6 +78,8 @@ func New(router IRouter) *App {
 }
 
 func (a *App) Start() {
+	cron.Start(a.As)
+
 	go func() {
 
 		err := a.FiberApp.Listen(fmt.Sprintf(":%v", a.Cfg.Server.Port))

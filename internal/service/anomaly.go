@@ -8,20 +8,29 @@ import (
 	"traffic-guarder/internal/infrastructure/cache"
 	"traffic-guarder/internal/model"
 	"traffic-guarder/internal/repository"
+	"traffic-guarder/internal/viewmodel"
 )
+
+type responseCodes struct {
+	NXDomain int64
+	Servfail int64
+	NoError  int64
+}
 
 type AnomalyService interface {
 	AnalyzeCompletedBucket(ctx context.Context, bucketStart time.Time) error
+	GetAnomalyEvents(ctx context.Context, vm *viewmodel.ExclusionRequest) (*viewmodel.ExclusionResponse, error)
 }
 
 type anomalyService struct {
+	ar repository.AnomalyRepository
 	br repository.BucketRepository
 	dc repository.DomainCheck
 	bc cache.BucketCache
 }
 
-func NewAnomalyService(dc repository.DomainCheck, bc cache.BucketCache, br repository.BucketRepository) AnomalyService {
-	return &anomalyService{dc: dc, bc: bc, br: br}
+func NewAnomalyService(ar repository.AnomalyRepository, dc repository.DomainCheck, bc cache.BucketCache, br repository.BucketRepository) AnomalyService {
+	return &anomalyService{ar: ar, dc: dc, bc: bc, br: br}
 }
 
 func (s *anomalyService) AnalyzeCompletedBucket(ctx context.Context, bucketStart time.Time) error {
@@ -89,8 +98,8 @@ func (s *anomalyService) AnalyzeCompletedBucket(ctx context.Context, bucketStart
 		finalScore, reason := maxScore(bytesScore, reqScore, nxScore, servfailScore, noErrorScore)
 
 		/*
-			NXDOMAIN oranı = nx_domain_count / request_count	İLERİDE BUNA EVRİLEBİLİR
-			SERVFAIL oranı = servfail_count / request_count		EN MANTIKLISINI UYGULA
+			NXDOMAIN_oranı = nx_domain_count / request_count	İLERİDE BUNA ÇEVİRİLEBİLİR
+			SERVFAIL_oranı = servfail_count / request_count		EN MANTIKLISINI UYGULA
 		*/
 
 		isAnomaly, anomalyDegree := classifyAnomaly(finalScore, currentReq, currentBytes)
@@ -118,7 +127,13 @@ func (s *anomalyService) AnalyzeCompletedBucket(ctx context.Context, bucketStart
 			continue
 		}
 
-		err = s.DeepAnalyzeBucket(ctx, bucketStart, domain, reason, finalScore)
+		rc := responseCodes{
+			NXDomain: int64(currentNX),
+			Servfail: int64(currentServfail),
+			NoError:  int64(currentNoError),
+		}
+
+		err = s.deepAnalyzeBucket(ctx, bucketStart, domain, reason, finalScore, rc)
 		if err != nil {
 			return errors.New("anomalyService DeepAnalyzeBucket error: " + err.Error())
 		}
@@ -126,42 +141,76 @@ func (s *anomalyService) AnalyzeCompletedBucket(ctx context.Context, bucketStart
 	return nil
 }
 
-func (s *anomalyService) DeepAnalyzeBucket(ctx context.Context, bucketStart time.Time, domain, reason string, finalScore float64) error {
-	var dangerousIPs []string
-
-	buckets, err := s.br.BucketByDomainAndStart(ctx, domain, bucketStart)
+func (s *anomalyService) deepAnalyzeBucket(ctx context.Context, bucketStart time.Time, domain, reason string, finalScore float64, rc responseCodes) error {
+	buckets, err := s.br.BucketByDomainAndStartTime(ctx, domain, bucketStart)
 	if err != nil {
-		return errors.New("anomalyService BucketByDomainAndStart error: " + err.Error())
+		return errors.New("anomalyService BucketByDomainAndStartTime error: " + err.Error())
 	}
 	anomalyReason := model.AnomalyReason(reason)
 
-	_ = buckets
-	_ = dangerousIPs
-	_ = anomalyReason
+	bucket := &model.TrafficBucket{}
 
-	/*
+	switch anomalyReason {
+	case model.ReasonRequestSpike:
+		bucket = forRequestSpike(buckets)
+	case model.ReasonBytesSpike:
+		bucket = forBytesSpike(buckets)
+	case model.ReasonNXDomainSpike:
+		bucket = forNXSpike(buckets)
+	case model.ReasonServfailSpike:
+		bucket = forServerfailSpike(buckets)
+	case model.ReasonNoErrorSpike:
+		bucket = forNoErrorSpike(buckets)
+	}
 
-		var bucket model.TrafficBucket
+	anomalyEvent := &model.AnomalyEvent{
+		BucketStart: bucketStart,
 
-		switch anomalyReason {
-		case model.ReasonRequestSpike:
-			bucket := forRequestSpike(buckets)
-		case model.ReasonBytesSpike:
-			bucket := forBytesSpike(buckets)
-		case model.ReasonNXDomainSpike:
-			bucket := forNXSpike(buckets)
-		case model.ReasonServfailSpike:
-			bucket := forServerfailSpike(buckets)
-		case model.ReasonNoErrorSpike:
-			bucket := forNoErrorSpike(buckets)
-		}
+		Domain:   domain,
+		SourceIP: bucket.SourceIP,
 
-		if anomalyReason == model.ReasonRequestSpike {
-			bucket := forRequestSpike(buckets)
-		}
+		Score:     finalScore,
+		IsAnomaly: true,
+		Reason:    anomalyReason,
 
-		anomalyEvent := &model.AnomalyEvent{}
+		TotalBytes:   bucket.TotalBytesSum,
+		RequestCount: bucket.RequestCount,
 
-	*/
+		NXDomainCount: rc.NXDomain,
+		ServfailCount: rc.Servfail,
+		NoErrorCount:  rc.NoError,
+
+		// QueryType --> BURAYA ULAŞMIYOR --> bunu sor gerekiyorsa çöz
+		Protocol: bucket.Protocol,
+
+		Country: bucket.Country,
+		ASN:     bucket.ASN,
+	}
+
+	err = s.ar.CreateAnomalyEvent(ctx, anomalyEvent)
+	if err != nil {
+		return errors.New("anomalyService CreateAnomalyEvent error: " + err.Error())
+	}
+
 	return nil
+}
+
+func (s *anomalyService) GetAnomalyEvents(ctx context.Context, vm *viewmodel.ExclusionRequest) (*viewmodel.ExclusionResponse, error) {
+	domain := vm.Domain
+	start, err := vm.StartTime()
+	if err != nil {
+		return nil, errors.New("anomalyService GetAnomalyEvents StartTime error: " + err.Error())
+	}
+
+	end, err := vm.EndTime()
+	if err != nil {
+		return nil, errors.New("anomalyService GetAnomalyEvents EndTime error: " + err.Error())
+	}
+
+	anomalyEvents, err := s.ar.GetEventsWithStartAndEndTime(ctx, domain, start, end)
+	if err != nil {
+		return nil, errors.New("anomalyService GetAnomalyEvents error: " + err.Error())
+	}
+
+	return nil, nil
 }

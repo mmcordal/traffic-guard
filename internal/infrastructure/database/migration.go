@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"traffic-guarder/internal/model"
 
 	"github.com/uptrace/bun"
 )
@@ -9,7 +10,12 @@ import (
 func AutoMigration(db *bun.DB) {
 	ctx := context.Background()
 
-	models := []interface{}{}
+	models := []interface{}{
+		(*model.TrafficLog)(nil),
+		(*model.TrafficBucket)(nil),
+		(*model.DomainAnomalyCheck)(nil),
+		(*model.AnomalyEvent)(nil),
+	}
 
 	for _, m := range models {
 		_, err := db.NewCreateTable().

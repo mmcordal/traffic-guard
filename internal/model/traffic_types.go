@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// QUERY TYPE
 type QueryType string
 
 const (
@@ -41,6 +42,7 @@ func IsValidQueryType(value string) (QueryType, error) {
 	return normalized, nil
 }
 
+// RESPONSE CODE
 type ResponseCode string
 
 const (
@@ -67,6 +69,7 @@ func IsValidResponseCode(value string) (ResponseCode, error) {
 	return normalized, nil
 }
 
+// PROTOCOL
 type Protocol string
 
 const (
@@ -91,6 +94,7 @@ func IsValidProtocol(value string) (Protocol, error) {
 	return normalized, nil
 }
 
+// ANOMALY REASON
 type AnomalyReason string
 
 const (
