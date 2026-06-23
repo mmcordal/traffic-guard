@@ -31,6 +31,7 @@ func (Router) RegisterRouter(a *app.App) {
 	bs := service.NewBucketService(br, bc)
 	ts := service.NewTrafficService(tr, bs)
 	as := service.NewAnomalyService(dc, bc, br)
+	_ = as // UNUTMA
 
 	// Handlers
 	th := handler.NewTrafficHandler(ts)
