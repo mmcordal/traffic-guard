@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"traffic-guarder/internal/infrastructure/config"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 )

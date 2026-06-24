@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: trafficguard
       POSTGRES_PASSWORD: trafficguard123
     ports:
-      - "5433:5432"
+      - "5440:5432"
     volumes:
       - trafficguard_pg_data:/var/lib/postgresql/data
 

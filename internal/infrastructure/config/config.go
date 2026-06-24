@@ -11,26 +11,26 @@ import (
 var config *Config
 
 type Config struct {
-	Database DBConfig
-	Server   ServerConfig
-	Redis    RedisConfig
+	Database DBConfig     `mapstructure:"database"`
+	Server   ServerConfig `mapstructure:"server"`
+	Redis    RedisConfig  `mapstructure:"redis"`
 }
 
 type DBConfig struct {
-	Name     string
-	Username string
-	Password string
-	Host     string
-	Port     string
+	Name     string `mapstructure:"name"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Host     string `mapstructure:"host"`
+	Port     string `mapstructure:"port"`
 }
 
 type ServerConfig struct {
-	Port string
+	Port string `mapstructure:"port"`
 }
 
 type RedisConfig struct {
-	Host string
-	Port string
+	Host string `mapstructure:"host"`
+	Port string `mapstructure:"port"`
 }
 
 func setDefaults() {
@@ -38,9 +38,9 @@ func setDefaults() {
 	viper.SetDefault("database.username", "trafficguard")
 	viper.SetDefault("database.password", "password") // kendi şifreniz
 	viper.SetDefault("database.host", "localhost")
-	viper.SetDefault("database.port", "5433")
+	viper.SetDefault("database.port", "5440")
 
-	viper.SetDefault("server.port", "3000")
+	viper.SetDefault("server.port", "8080")
 
 	viper.SetDefault("redis.host", "localhost")
 	viper.SetDefault("redis.port", "6380")
@@ -67,7 +67,7 @@ func Setup() (*Config, error) {
 		if p := os.Getenv("SERVER_PORT"); p != "" {
 			config.Server.Port = p
 		} else {
-			config.Server.Port = "3000"
+			config.Server.Port = "8080"
 		}
 	}
 
