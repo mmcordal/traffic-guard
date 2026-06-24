@@ -11,12 +11,6 @@ import (
 	"traffic-guarder/internal/viewmodel"
 )
 
-type responseCodes struct {
-	NXDomain int64
-	Servfail int64
-	NoError  int64
-}
-
 type AnomalyService interface {
 	AnalyzeCompletedBucket(ctx context.Context, bucketStart time.Time) error
 	GetAnomalyEvents(ctx context.Context, vm *viewmodel.ExclusionRequest) (*viewmodel.ExclusionResponse, error)
@@ -127,13 +121,7 @@ func (s *anomalyService) AnalyzeCompletedBucket(ctx context.Context, bucketStart
 			continue
 		}
 
-		rc := responseCodes{
-			NXDomain: int64(currentNX),
-			Servfail: int64(currentServfail),
-			NoError:  int64(currentNoError),
-		}
-
-		err = s.deepAnalyzeBucket(ctx, bucketStart, domain, reason, finalScore, rc)
+		err = s.deepAnalyzeBucket(ctx, bucketStart, domain, reason, finalScore)
 		if err != nil {
 			return errors.New("anomalyService DeepAnalyzeBucket error: " + err.Error())
 		}
@@ -141,14 +129,14 @@ func (s *anomalyService) AnalyzeCompletedBucket(ctx context.Context, bucketStart
 	return nil
 }
 
-func (s *anomalyService) deepAnalyzeBucket(ctx context.Context, bucketStart time.Time, domain, reason string, finalScore float64, rc responseCodes) error {
+func (s *anomalyService) deepAnalyzeBucket(ctx context.Context, bucketStart time.Time, domain, reason string, finalScore float64) error {
 	buckets, err := s.br.BucketByDomainAndStartTime(ctx, domain, bucketStart)
 	if err != nil {
 		return errors.New("anomalyService BucketByDomainAndStartTime error: " + err.Error())
 	}
 	anomalyReason := model.AnomalyReason(reason)
 
-	bucket := &model.TrafficBucket{}
+	var bucket *model.TrafficBucket
 
 	switch anomalyReason {
 	case model.ReasonRequestSpike:
@@ -176,9 +164,9 @@ func (s *anomalyService) deepAnalyzeBucket(ctx context.Context, bucketStart time
 		TotalBytes:   bucket.TotalBytesSum,
 		RequestCount: bucket.RequestCount,
 
-		NXDomainCount: rc.NXDomain,
-		ServfailCount: rc.Servfail,
-		NoErrorCount:  rc.NoError,
+		NXDomainCount: bucket.NXDomainCount,
+		ServfailCount: bucket.ServfailCount,
+		NoErrorCount:  bucket.NoErrorCount,
 
 		// QueryType --> BURAYA ULAŞMIYOR --> bunu sor gerekiyorsa çöz
 		Protocol: bucket.Protocol,

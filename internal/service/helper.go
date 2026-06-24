@@ -106,6 +106,9 @@ func forRequestSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 	dangerousBucket := new(model.TrafficBucket)
 	var maxCount int64
 	for _, bucket := range buckets {
+		if bucket == nil {
+			return nil
+		}
 		if bucket.RequestCount > maxCount {
 			maxCount = bucket.RequestCount
 			dangerousBucket = bucket
@@ -118,6 +121,9 @@ func forBytesSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 	dangerousBucket := new(model.TrafficBucket)
 	var maxCount int64
 	for _, bucket := range buckets {
+		if bucket == nil {
+			return nil
+		}
 		if bucket.TotalBytesSum > maxCount {
 			maxCount = bucket.TotalBytesSum
 			dangerousBucket = bucket
@@ -130,6 +136,9 @@ func forNXSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 	dangerousBucket := new(model.TrafficBucket)
 	var maxCount int64
 	for _, bucket := range buckets {
+		if bucket == nil {
+			return nil
+		}
 		if bucket.NXDomainCount > maxCount {
 			maxCount = bucket.NXDomainCount
 			dangerousBucket = bucket
@@ -142,6 +151,9 @@ func forServerfailSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 	dangerousBucket := new(model.TrafficBucket)
 	var maxCount int64
 	for _, bucket := range buckets {
+		if bucket == nil {
+			return nil
+		}
 		if bucket.ServfailCount > maxCount {
 			maxCount = bucket.ServfailCount
 			dangerousBucket = bucket
@@ -154,6 +166,9 @@ func forNoErrorSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 	dangerousBucket := new(model.TrafficBucket)
 	var maxCount int64
 	for _, bucket := range buckets {
+		if bucket == nil {
+			return nil
+		}
 		if bucket.NoErrorCount > maxCount {
 			maxCount = bucket.NoErrorCount
 			dangerousBucket = bucket
