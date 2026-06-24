@@ -36,7 +36,7 @@ type RedisConfig struct {
 func setDefaults() {
 	viper.SetDefault("database.name", "trafficguard_db")
 	viper.SetDefault("database.username", "trafficguard")
-	viper.SetDefault("database.password", "trafficguard123") // kendi şifreniz
+	viper.SetDefault("database.password", "password") // kendi şifreniz
 	viper.SetDefault("database.host", "localhost")
 	viper.SetDefault("database.port", "5433")
 

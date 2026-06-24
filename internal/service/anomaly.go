@@ -213,8 +213,11 @@ func (s *anomalyService) GetAnomalyEvents(ctx context.Context, vm *viewmodel.Exc
 	}
 
 	resp := help(anomalyEvents, domain)
+	if resp == nil {
+		return nil, nil
+	}
 	resp.StartDate = start.Format(time.RFC3339)
-	resp.EndDate = start.Format(time.RFC3339)
+	resp.EndDate = end.Format(time.RFC3339)
 
 	return resp, nil
 }
