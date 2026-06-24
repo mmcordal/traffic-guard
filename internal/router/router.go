@@ -29,14 +29,16 @@ func (Router) RegisterRouter(a *app.App) {
 	bs := service.NewBucketService(br, bc)
 	ts := service.NewTrafficService(tr, bs)
 
-	_ = as // UNUTMA
-
 	// Handlers
 	th := handler.NewTrafficHandler(ts)
+	ah := handler.NewExclusionHandler(as)
 
 	v1 := app.Group("/api/v1")
 
 	log := v1.Group("/traffic-log")
 	router.Put(log, "/", th.CreateTrafficLog)
+
+	exclusion := v1.Group("/exclusion")
+	router.Post(exclusion, "/", ah.GetExclusionList)
 
 }

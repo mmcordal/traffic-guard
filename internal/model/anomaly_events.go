@@ -22,9 +22,9 @@ type AnomalyEvent struct {
 	TotalBytes   int64 `bun:",notnull,check:total_bytes >= 0"`
 	RequestCount int64 `bun:",notnull,check:request_count >= 0"`
 
-	NXDomainCount int64 `bun:",notnull,check:request_count >= 0"`
-	ServfailCount int64 `bun:",notnull,check:servfail >= 0"`
-	NoErrorCount  int64 `bun:",notnull,check:no_error >= 0"`
+	NXDomainCount int64 `bun:",notnull,check:nx_domain_count >= 0"`
+	ServfailCount int64 `bun:",notnull,check:servfail_count >= 0"`
+	NoErrorCount  int64 `bun:",notnull,check:no_error_count >= 0"`
 
 	QueryType QueryType `bun:",type:varchar(20),nullzero"`
 	Protocol  Protocol  `bun:",type:varchar(10),nullzero"`

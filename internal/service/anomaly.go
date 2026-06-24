@@ -212,5 +212,9 @@ func (s *anomalyService) GetAnomalyEvents(ctx context.Context, vm *viewmodel.Exc
 		return nil, errors.New("anomalyService GetAnomalyEvents error: " + err.Error())
 	}
 
-	return nil, nil
+	resp := help(anomalyEvents, domain)
+	resp.StartDate = start.Format(time.RFC3339)
+	resp.EndDate = start.Format(time.RFC3339)
+
+	return resp, nil
 }

@@ -1,5 +1,7 @@
 package viewmodel
 
+import "traffic-guarder/internal/model"
+
 type AnomalyEvent struct {
 	AttackStarted string `json:"attack_started"`
 	AttackEnded   string `json:"attack_ended"`
@@ -20,4 +22,8 @@ type AnomalyEvent struct {
 	Protocol string `json:"protocol"`
 	Country  string `json:"country"`
 	ASN      string `json:"asn"`
+}
+
+func ToAnomalyEvent(event *model.AnomalyEvent) *AnomalyEvent {
+	return &AnomalyEvent{}
 }
