@@ -103,11 +103,11 @@ func stddev(array []float64, avg float64) float64 {
 }
 
 func forRequestSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
-	dangerousBucket := new(model.TrafficBucket)
+	var dangerousBucket *model.TrafficBucket
 	var maxCount int64
 	for _, bucket := range buckets {
 		if bucket == nil {
-			return nil
+			continue
 		}
 		if bucket.RequestCount > maxCount {
 			maxCount = bucket.RequestCount
@@ -118,11 +118,11 @@ func forRequestSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 }
 
 func forBytesSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
-	dangerousBucket := new(model.TrafficBucket)
+	var dangerousBucket *model.TrafficBucket
 	var maxCount int64
 	for _, bucket := range buckets {
 		if bucket == nil {
-			return nil
+			continue
 		}
 		if bucket.TotalBytesSum > maxCount {
 			maxCount = bucket.TotalBytesSum
@@ -133,11 +133,11 @@ func forBytesSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 }
 
 func forNXSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
-	dangerousBucket := new(model.TrafficBucket)
+	var dangerousBucket *model.TrafficBucket
 	var maxCount int64
 	for _, bucket := range buckets {
 		if bucket == nil {
-			return nil
+			continue
 		}
 		if bucket.NXDomainCount > maxCount {
 			maxCount = bucket.NXDomainCount
@@ -148,11 +148,11 @@ func forNXSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 }
 
 func forServerfailSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
-	dangerousBucket := new(model.TrafficBucket)
+	var dangerousBucket *model.TrafficBucket
 	var maxCount int64
 	for _, bucket := range buckets {
 		if bucket == nil {
-			return nil
+			continue
 		}
 		if bucket.ServfailCount > maxCount {
 			maxCount = bucket.ServfailCount
@@ -163,11 +163,11 @@ func forServerfailSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
 }
 
 func forNoErrorSpike(buckets []*model.TrafficBucket) *model.TrafficBucket {
-	dangerousBucket := new(model.TrafficBucket)
+	var dangerousBucket *model.TrafficBucket
 	var maxCount int64
 	for _, bucket := range buckets {
 		if bucket == nil {
-			return nil
+			continue
 		}
 		if bucket.NoErrorCount > maxCount {
 			maxCount = bucket.NoErrorCount

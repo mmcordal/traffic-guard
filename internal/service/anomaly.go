@@ -151,6 +151,10 @@ func (s *anomalyService) deepAnalyzeBucket(ctx context.Context, bucketStart time
 		bucket = forNoErrorSpike(buckets)
 	}
 
+	if bucket == nil {
+		return nil
+	}
+
 	anomalyEvent := &model.AnomalyEvent{
 		BucketStart: bucketStart,
 
