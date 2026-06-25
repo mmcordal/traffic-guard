@@ -68,8 +68,8 @@ type WeightedString struct {
 
 var responseCodes = []WeightedString{
 	{Value: "NOERROR", Weight: 85},
-	{Value: "NXDOMAİN", Weight: 11},
-	{Value: "SERVFAİL", Weight: 3},
+	{Value: "NXDOMAIN", Weight: 11},
+	{Value: "SERVFAIL", Weight: 3},
 	{Value: "REFUSED", Weight: 1},
 }
 

@@ -2,31 +2,48 @@ package simulator
 
 import (
 	"math/rand"
-	"strings"
 )
 
-type WeightedIP struct{}
+var letters = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
 
 func Pick[T any](items []T) T {
-	return items[0]
+	return items[rand.Intn(len(items))]
 }
 
 func WeightedPickString(items []WeightedString) string {
-	return ""
-}
+	total := 0
+	for _, item := range items {
+		total += item.Weight
+	}
+	n := rand.Intn(total)
 
-func WeightedPickIP(items []WeightedIP) string {
-	return ""
+	for _, item := range items {
+		if n < item.Weight {
+			return item.Value
+		}
+		n -= item.Weight
+	}
+	return items[len(items)-1].Value
+
 }
 
 func RandomInt64(min, max int64) int64 {
-	return min + rand.Int63n(max-min)
+	if max <= min {
+		return min
+	}
+	return min + rand.Int63n(max-min+1)
 }
 
 func RandomAlphaNumeric(length int) string {
-	return strings.Repeat("a", length)
+	result := make([]rune, length)
+
+	for i := range result {
+		result[i] = letters[rand.Intn(len(letters))]
+	}
+
+	return string(result)
 }
 
 func RandomReadableWord() string {
-	return ""
+	return Pick(subDomains)
 }
