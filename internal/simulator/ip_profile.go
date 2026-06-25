@@ -67,6 +67,43 @@ var CommonDNSIPProfiles = []IPProfile{
 	{IP: "91.200.12.66", CountryCode: "UA", ASN: "AS48666", Provider: "Suspicious Network", Kind: "hosting_suspicious", Weight: 1},
 }
 
+var trIPProfiles = []IPProfile{
+	{IP: "88.255.1.10", CountryCode: "TR", ASN: "AS9121", Weight: 25},
+	{IP: "88.255.1.11", CountryCode: "TR", ASN: "AS9121", Weight: 22},
+	{IP: "88.255.1.12", CountryCode: "TR", ASN: "AS9121", Weight: 20},
+
+	{IP: "95.70.12.45", CountryCode: "TR", ASN: "AS47331", Weight: 18},
+	{IP: "95.70.12.46", CountryCode: "TR", ASN: "AS47331", Weight: 15},
+	{IP: "85.105.201.33", CountryCode: "TR", ASN: "AS47331", Weight: 12},
+
+	{IP: "78.189.33.21", CountryCode: "TR", ASN: "AS34984", Weight: 14},
+	{IP: "78.189.33.22", CountryCode: "TR", ASN: "AS34984", Weight: 12},
+	{IP: "31.223.88.12", CountryCode: "TR", ASN: "AS34984", Weight: 8},
+
+	{IP: "46.2.145.90", CountryCode: "TR", ASN: "AS15924", Weight: 12},
+	{IP: "46.2.145.91", CountryCode: "TR", ASN: "AS15924", Weight: 10},
+	{IP: "212.174.55.19", CountryCode: "TR", ASN: "AS15924", Weight: 6},
+
+	{IP: "176.88.14.77", CountryCode: "TR", ASN: "AS9121", Weight: 10},
+	{IP: "176.88.14.78", CountryCode: "TR", ASN: "AS9121", Weight: 9},
+	{IP: "176.88.14.79", CountryCode: "TR", ASN: "AS9121", Weight: 8},
+
+	{IP: "37.155.44.10", CountryCode: "TR", ASN: "AS34984", Weight: 7},
+	{IP: "37.155.44.11", CountryCode: "TR", ASN: "AS34984", Weight: 6},
+
+	{IP: "94.54.22.100", CountryCode: "TR", ASN: "AS9121", Weight: 7},
+	{IP: "94.54.22.101", CountryCode: "TR", ASN: "AS9121", Weight: 6},
+
+	{IP: "185.86.12.20", CountryCode: "TR", ASN: "AS42926", Weight: 5},
+	{IP: "185.86.12.21", CountryCode: "TR", ASN: "AS42926", Weight: 4},
+
+	{IP: "193.192.98.30", CountryCode: "TR", ASN: "AS8517", Weight: 4},
+	{IP: "193.192.98.31", CountryCode: "TR", ASN: "AS8517", Weight: 3},
+
+	{IP: "213.74.120.50", CountryCode: "TR", ASN: "AS15924", Weight: 3},
+	{IP: "213.74.120.51", CountryCode: "TR", ASN: "AS15924", Weight: 2},
+}
+
 func PickIPProfile() IPProfile {
 	mu.Lock()
 	defer mu.Unlock()

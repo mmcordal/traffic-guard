@@ -27,6 +27,26 @@ func WeightedPickString(items []WeightedString) string {
 
 }
 
+func WeightedPickIP(items []IPProfile) IPProfile {
+	total := 0
+
+	for _, item := range items {
+		total += item.Weight
+	}
+
+	n := rand.Intn(total)
+
+	for _, item := range items {
+		if n < item.Weight {
+			return item
+		}
+
+		n -= item.Weight
+	}
+
+	return items[len(items)-1]
+}
+
 func RandomInt64(min, max int64) int64 {
 	if max <= min {
 		return min

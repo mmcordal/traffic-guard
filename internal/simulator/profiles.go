@@ -86,7 +86,7 @@ var queryType = []WeightedString{
 	{Value: "OTHER", Weight: 1},
 }
 
-var protocol = []WeightedString{
+var protocols = []WeightedString{
 	{Value: "UDP", Weight: 70},
 	{Value: "TCP", Weight: 20},
 	{Value: "DOH", Weight: 5},
