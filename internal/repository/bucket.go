@@ -26,14 +26,14 @@ func (r *bucketRepository) UpsertBucket(ctx context.Context, bucket *model.Traff
 	_, err := r.db.NewInsert().
 		Model(bucket).
 		On("CONFLICT (bucket_start, domain, source_ip) DO UPDATE").
-		Set("request_count = traffic_buckets.request_count + EXCLUDED.request_count").
-		Set("request_bytes_sum = traffic_buckets.request_bytes_sum + EXCLUDED.request_bytes_sum").
-		Set("response_bytes_sum = traffic_buckets.response_bytes_sum + EXCLUDED.response_bytes_sum").
-		Set("total_bytes_sum = traffic_buckets.total_bytes_sum + EXCLUDED.total_bytes_sum").
-		Set("nx_domain_count = traffic_buckets.nx_domain_count + EXCLUDED.nx_domain_count").
-		Set("servfail_count = traffic_buckets.servfail_count + EXCLUDED.servfail_count").
-		Set("no_error_count = traffic_buckets.no_error_count + EXCLUDED.no_error_count").
-		Set("latency_sum_ms = traffic_buckets.latency_sum_ms + EXCLUDED.latency_sum_ms").
+		Set("request_count = tb.request_count + EXCLUDED.request_count").
+		Set("request_bytes_sum = tb.request_bytes_sum + EXCLUDED.request_bytes_sum").
+		Set("response_bytes_sum = tb.response_bytes_sum + EXCLUDED.response_bytes_sum").
+		Set("total_bytes_sum = tb.total_bytes_sum + EXCLUDED.total_bytes_sum").
+		Set("nx_domain_count = tb.nx_domain_count + EXCLUDED.nx_domain_count").
+		Set("servfail_count = tb.servfail_count + EXCLUDED.servfail_count").
+		Set("no_error_count = tb.no_error_count + EXCLUDED.no_error_count").
+		Set("latency_sum_ms = tb.latency_sum_ms + EXCLUDED.latency_sum_ms").
 		Set("country = EXCLUDED.country").
 		Set("asn = EXCLUDED.asn").
 		Set("protocol = EXCLUDED.protocol").
