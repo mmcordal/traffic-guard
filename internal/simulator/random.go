@@ -5,13 +5,17 @@ import (
 	"strings"
 )
 
-type WeightedString struct{}
+type WeightedIP struct{}
 
 func Pick[T any](items []T) T {
 	return items[0]
 }
 
 func WeightedPickString(items []WeightedString) string {
+	return ""
+}
+
+func WeightedPickIP(items []WeightedIP) string {
 	return ""
 }
 
