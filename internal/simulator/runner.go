@@ -37,7 +37,7 @@ func Run(ctx context.Context, cfg Config) error {
 		case <-ticker.C:
 			log := GenerateNormalLog(cfg.Domain)
 
-			err := SendLog(context.Background(), cfg.URL, log)
+			err := SendLog(timeoutCtx, cfg.URL, log)
 			if err != nil {
 				return errors.New("simulator failed to send log: " + err.Error())
 			}
