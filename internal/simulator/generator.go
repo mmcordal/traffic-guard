@@ -12,7 +12,7 @@ func GenerateNormalLog(domain string) TrafficLogPayload {
 	requestBytes := RandomInt64(60, 150)
 	responseBytes := RandomInt64(200, 900)
 
-	ipP := WeightedPickIP(trIPProfiles)
+	ipP := WeightedPickIP(CommonDNSIPProfiles)
 
 	return TrafficLogPayload{
 		Timestamp:     time.Now().UTC().Format(time.RFC3339),
