@@ -16,15 +16,15 @@ var NormalCfg = Config{
 	Domain:   "netinternet.tr",
 	Mode:     "normal",
 	RPS:      2,
-	Duration: 11 * time.Minute,
-} // 2 * 60 * 11 = 1320 log
+	Duration: 330 * time.Second,
+} // 2 * 120 = 240 log
 
 var RequestSpikeCfg = Config{
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
 	Domain:   "netinternet.tr", // bi domaine yüklenmek istersen ilgili domaini gir.
 	Mode:     "request_spike",
-	RPS:      10,
-	Duration: 60 * time.Second,
+	RPS:      50,
+	Duration: 30 * time.Second,
 } // 10 * 60 = 600 log
 
 // boş olacaksa da şöyle: // 20 * 60 = 1200 log

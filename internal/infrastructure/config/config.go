@@ -81,8 +81,8 @@ func setDefaults() {
 	viper.SetDefault("redis.host", "localhost")
 	viper.SetDefault("redis.port", "6380")
 	// prod için
-	viper.SetDefault("analyze.bucket_window_seconds", 10) // 60
-	viper.SetDefault("analyze.analyze_every_seconds", 10) // 60
+	viper.SetDefault("analyze.bucket_window_seconds", 30) // 60
+	viper.SetDefault("analyze.analyze_every_seconds", 30) // 60
 	viper.SetDefault("analyze.history_buckets", 10)       // 10
 }
 func Setup() (*Config, error) {
