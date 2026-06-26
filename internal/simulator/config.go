@@ -13,7 +13,7 @@ type Config struct {
 
 var NormalCfg = Config{ // rps * duration = 30 log
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
-	Domain:   "example.com",
+	Domain:   "netinternet.tr",
 	Mode:     "normal",
 	RPS:      2,
 	Duration: 15 * time.Second,
@@ -21,7 +21,7 @@ var NormalCfg = Config{ // rps * duration = 30 log
 
 var RequestSpikeCfg = Config{ // rps * duration = 300 log
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
-	Domain:   "", // bi domaine yüklenmek istersen ilgili domaini gir.
+	Domain:   "netinternet.tr", // bi domaine yüklenmek istersen ilgili domaini gir.
 	Mode:     "request_spike",
 	RPS:      5,
 	Duration: 60 * time.Second,
@@ -29,7 +29,7 @@ var RequestSpikeCfg = Config{ // rps * duration = 300 log
 
 var BytesSpikeCfg = Config{ // rps * duration = 300 log
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
-	Domain:   "",
+	Domain:   "netinternet.tr",
 	Mode:     "bytes_spike",
 	RPS:      5,
 	Duration: 60 * time.Second,
@@ -37,7 +37,7 @@ var BytesSpikeCfg = Config{ // rps * duration = 300 log
 
 var NXDomainSpikeCfg = Config{ // rps * duration = 300 log
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
-	Domain:   "",
+	Domain:   "netinternet.tr",
 	Mode:     "nx_domain_spike",
 	RPS:      5,
 	Duration: 60 * time.Second,
@@ -45,7 +45,7 @@ var NXDomainSpikeCfg = Config{ // rps * duration = 300 log
 
 var ServfailSpikeCfg = Config{
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
-	Domain:   "",
+	Domain:   "netinternet.tr",
 	Mode:     "servfail_spike",
 	RPS:      5,
 	Duration: 60 * time.Second,

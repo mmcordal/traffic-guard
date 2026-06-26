@@ -29,6 +29,7 @@ var sampleDomains = []string{
 	"redis.io",
 	"linkedin.com",
 	"ajet.com",
+	"x.com",
 }
 
 // 26 tane
