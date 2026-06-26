@@ -98,7 +98,7 @@ func GenerateServfailSpikeLog(domain string) TrafficLogPayload {
 		Domain:        domain,
 		QueryName:     RandomReadableWord() + "." + domain,
 		SourceIP:      ipProfile.IP,
-		QueryType:     WeightedPickString(queryType),
+		QueryType:     WeightedPickString(queryTypeforServfail),
 		ResponseCode:  "SERVFAIL",
 		RequestBytes:  requestBytes,
 		ResponseBytes: responseBytes,
