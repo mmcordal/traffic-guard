@@ -16,7 +16,7 @@ func main() {
 		"nx_domain_spike" --> simulator.NXDomainSpikeCfg
 		"servfail_spike" --> simulator.ServfailSpikeCfg
 	*/
-	err := simulator.Run(context.Background(), "normal")
+	err := simulator.Run(context.Background(), "nx_domain_spike")
 	if err != nil {
 		log.Fatal(err)
 	}
