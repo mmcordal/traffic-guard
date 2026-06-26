@@ -39,7 +39,7 @@ func Run(ctx context.Context, cfg Config) error {
 
 			err := SendLog(timeoutCtx, cfg.URL, log)
 			if err != nil {
-				return errors.New("simulator failed to send log: " + err.Error())
+				return fmt.Errorf("number of logs sent so far: %d simulator failed to send log: %w", sendCount, err)
 			}
 			sendCount++
 		}
