@@ -3,20 +3,20 @@ package main
 import (
 	"context"
 	"log"
-	"time"
 	"traffic-guarder/internal/simulator"
 )
 
 func main() {
 
-	cfg := simulator.Config{
-		URL:      "http://localhost:8080/api/v1/traffic-log/",
-		Domain:   "example.com",
-		Mode:     "normal",
-		RPS:      2,
-		Duration: 15 * time.Second,
-	}
-	err := simulator.Run(context.Background(), cfg)
+	/*
+		Mode'u seç uygun config Run da seçiliyor.
+		"normal" --> simulator.NormalCfg
+		"request_spike" --> simulator.RequestSpikeCfg
+		"bytes_spike" --> simulator.BytesSpikeCfg
+		"nx_domain_spike" --> simulator.NXDomainSpikeCfg
+		"servfail_spike" --> simulator.ServfailSpikeCfg
+	*/
+	err := simulator.Run(context.Background(), "normal")
 	if err != nil {
 		log.Fatal(err)
 	}

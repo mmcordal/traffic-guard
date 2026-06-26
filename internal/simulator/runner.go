@@ -7,7 +7,22 @@ import (
 	"time"
 )
 
-func Run(ctx context.Context, cfg Config) error {
+func Run(ctx context.Context, mode string) error {
+	cfg := Config{}
+
+	switch mode {
+	case "normal":
+		cfg = NormalCfg
+	case "request_spike":
+		cfg = RequestSpikeCfg
+	case "bytes_spike":
+		cfg = BytesSpikeCfg
+	case "nx_domain_spike":
+		cfg = NXDomainSpikeCfg
+	case "servfail_spike":
+		cfg = ServfailSpikeCfg
+	}
+
 	if cfg.URL == "" {
 		return errors.New("simulator URL is required")
 	}
@@ -35,7 +50,22 @@ func Run(ctx context.Context, cfg Config) error {
 			fmt.Printf("simulator finished, sent count: %d\n", sendCount)
 			return nil
 		case <-ticker.C:
-			log := GenerateNormalLog(cfg.Domain)
+			log := TrafficLogPayload{}
+
+			switch cfg.Mode {
+			case "normal":
+				log = GenerateNormalLog(cfg.Domain)
+			case "request_spike":
+				log = GenerateRequestSpikeLog(cfg.Domain)
+			case "bytes_spike":
+				log = GenerateBytesSpikeLog(cfg.Domain)
+			case "nx_domain_spike":
+				log = GenerateNXDomainSpikeLog(cfg.Domain)
+			case "servfail_spike":
+				log = GenerateServfailSpikeLog(cfg.Domain)
+			default:
+				log = GenerateNormalLog(cfg.Domain)
+			}
 
 			err := SendLog(timeoutCtx, cfg.URL, log)
 			if err != nil {

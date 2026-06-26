@@ -86,6 +86,22 @@ var queryType = []WeightedString{
 	{Value: "OTHER", Weight: 1},
 }
 
+var queryTypeforNXSpike = []WeightedString{
+	{Value: "A", Weight: 80},
+	{Value: "AAAA", Weight: 14},
+	{Value: "MX", Weight: 2},
+	{Value: "ANY", Weight: 2},
+	{Value: "OTHER", Weight: 2},
+}
+
+var queryTypeforServfail = []WeightedString{
+	{Value: "A", Weight: 80},
+	{Value: "AAAA", Weight: 14},
+	{Value: "MX", Weight: 2},
+	{Value: "TXT", Weight: 2},
+	{Value: "NS", Weight: 2},
+}
+
 var protocols = []WeightedString{
 	{Value: "UDP", Weight: 70},
 	{Value: "TCP", Weight: 20},
