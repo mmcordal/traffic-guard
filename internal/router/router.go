@@ -26,7 +26,7 @@ func (Router) RegisterRouter(a *app.App) {
 	tr := repository.NewTrafficRepository(db)
 
 	// Services
-	bs := service.NewBucketService(br, bc)
+	bs := service.NewBucketService(br, bc, a.Cfg.Analyze)
 	ts := service.NewTrafficService(tr, bs)
 
 	// Handlers

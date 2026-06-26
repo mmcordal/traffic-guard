@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 	"traffic-guarder/internal/infrastructure/cache"
+	"traffic-guarder/internal/infrastructure/config"
 	"traffic-guarder/internal/model"
 	"traffic-guarder/internal/repository"
 )
@@ -15,16 +15,17 @@ type BucketService interface {
 }
 
 type bucketService struct {
-	br repository.BucketRepository
-	bc cache.BucketCache
+	br  repository.BucketRepository
+	bc  cache.BucketCache
+	cfg config.AnalyzeConfig
 }
 
-func NewBucketService(br repository.BucketRepository, bc cache.BucketCache) BucketService {
-	return &bucketService{br: br, bc: bc}
+func NewBucketService(br repository.BucketRepository, bc cache.BucketCache, cfg config.AnalyzeConfig) BucketService {
+	return &bucketService{br: br, bc: bc, cfg: cfg}
 }
 
 func (s *bucketService) UpsertBucket(ctx context.Context, log *model.TrafficLog) error {
-	bucketStart := log.Timestamp.Truncate(time.Minute)
+	bucketStart := log.Timestamp.Truncate(s.cfg.BucketWindow())
 
 	nxDomainCount := int64(0)
 	servfailCount := int64(0)

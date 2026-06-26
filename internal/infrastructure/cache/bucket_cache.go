@@ -5,12 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"traffic-guarder/internal/infrastructure/config"
 	"traffic-guarder/internal/model"
 
 	"github.com/redis/go-redis/v9"
 )
-
-const bucketTTL = 15 * time.Minute
 
 type BucketCache interface {
 	IncrementDomainBucketFromLog(ctx context.Context, log *model.TrafficLog) error
@@ -21,14 +20,15 @@ type BucketCache interface {
 
 type bucketCache struct {
 	cache *RedisClient
+	cfg   config.AnalyzeConfig
 }
 
-func NewBucketCache(c *RedisClient) BucketCache {
-	return &bucketCache{cache: c}
+func NewBucketCache(c *RedisClient, cfg config.AnalyzeConfig) BucketCache {
+	return &bucketCache{cache: c, cfg: cfg}
 }
 
 func (c *bucketCache) IncrementDomainBucketFromLog(ctx context.Context, log *model.TrafficLog) error {
-	bucketStart := log.Timestamp.Truncate(time.Minute)
+	bucketStart := log.Timestamp.Truncate(c.cfg.BucketWindow())
 	bucketUnix := bucketStart.Unix()
 
 	key := fmt.Sprintf("tg:domain_bucket:%s:%d", log.Domain, bucketUnix)
@@ -95,9 +95,9 @@ func (c *bucketCache) IncrementDomainBucketFromLog(ctx context.Context, log *mod
 		return errors.New("redis sAdd bucket_cache --> bucket_domains error: " + err.Error())
 	}
 
-	_ = c.cache.Expire(ctx, key, bucketTTL)
-	_ = c.cache.Expire(ctx, minutesKey, bucketTTL)
-	_ = c.cache.Expire(ctx, bucketDomainsKey, bucketTTL)
+	_ = c.cache.Expire(ctx, key, c.cfg.BucketTTL())
+	_ = c.cache.Expire(ctx, minutesKey, c.cfg.BucketTTL())
+	_ = c.cache.Expire(ctx, bucketDomainsKey, c.cfg.BucketTTL())
 
 	return nil
 }

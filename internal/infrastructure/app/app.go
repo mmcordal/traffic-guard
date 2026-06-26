@@ -54,14 +54,14 @@ func New(router IRouter) *App {
 		cfg.Redis.Host + ":" + cfg.Redis.Port,
 	)
 
-	bc := cache.NewBucketCache(redisClient)
+	bc := cache.NewBucketCache(redisClient, cfg.Analyze)
 
 	// repositories
 	br := repository.NewBucketRepository(db)
 	dc := repository.NewDomainCheck(db)
 	ar := repository.NewAnomalyRepository(db)
 
-	as := service.NewAnomalyService(ar, dc, bc, br)
+	as := service.NewAnomalyService(ar, dc, bc, br, cfg.Analyze)
 
 	app := &App{
 		FiberApp: fiberApp,
@@ -78,7 +78,7 @@ func New(router IRouter) *App {
 }
 
 func (a *App) Start() {
-	cron.Start(a.As)
+	cron.Start(a.As, a.Cfg.Analyze)
 
 	go func() {
 

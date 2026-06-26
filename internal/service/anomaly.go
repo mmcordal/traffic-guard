@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 	"traffic-guarder/internal/infrastructure/cache"
+	"traffic-guarder/internal/infrastructure/config"
 	"traffic-guarder/internal/model"
 	"traffic-guarder/internal/repository"
 	"traffic-guarder/internal/viewmodel"
@@ -17,14 +18,20 @@ type AnomalyService interface {
 }
 
 type anomalyService struct {
-	ar repository.AnomalyRepository
-	br repository.BucketRepository
-	dc repository.DomainCheck
-	bc cache.BucketCache
+	ar  repository.AnomalyRepository
+	br  repository.BucketRepository
+	dc  repository.DomainCheck
+	bc  cache.BucketCache
+	cfg config.AnalyzeConfig
 }
 
-func NewAnomalyService(ar repository.AnomalyRepository, dc repository.DomainCheck, bc cache.BucketCache, br repository.BucketRepository) AnomalyService {
-	return &anomalyService{ar: ar, dc: dc, bc: bc, br: br}
+func NewAnomalyService(ar repository.AnomalyRepository,
+	dc repository.DomainCheck,
+	bc cache.BucketCache,
+	br repository.BucketRepository,
+	cfg config.AnalyzeConfig,
+) AnomalyService {
+	return &anomalyService{ar: ar, dc: dc, bc: bc, br: br, cfg: cfg}
 }
 
 func (s *anomalyService) AnalyzeCompletedBucket(ctx context.Context, bucketStart time.Time) error {
@@ -45,7 +52,12 @@ func (s *anomalyService) AnalyzeCompletedBucket(ctx context.Context, bucketStart
 		currentServfail, _ := strconv.ParseFloat(currentMap["servfail_count"], 64)
 		currentNoError, _ := strconv.ParseFloat(currentMap["no_error_count"], 64)
 
-		previousMinutes, err := s.bc.GetPreviousBucketMinutes(ctx, domain, bucketStart.Add(-1*time.Minute), 10)
+		previousMinutes, err := s.bc.GetPreviousBucketMinutes(
+			ctx,
+			domain,
+			bucketStart.Add(-s.cfg.BucketWindow()),
+			s.cfg.HistoryLimit(),
+		)
 		if err != nil {
 			return errors.New("anomalyService GetPreviousBucketMinutes error: " + err.Error())
 		}
