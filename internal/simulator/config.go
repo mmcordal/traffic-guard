@@ -15,15 +15,15 @@ var NormalCfg = Config{
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
 	Domain:   "netinternet.tr",
 	Mode:     "normal",
-	RPS:      2,
+	RPS:      10,
 	Duration: 330 * time.Second,
-} // 2 * 120 = 240 log
+} // 10 * 330 = 3300 log
 
 var RequestSpikeCfg = Config{
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
 	Domain:   "netinternet.tr", // bi domaine yüklenmek istersen ilgili domaini gir.
 	Mode:     "request_spike",
-	RPS:      50,
+	RPS:      500,
 	Duration: 30 * time.Second,
 } // 10 * 60 = 600 log
 
@@ -38,7 +38,7 @@ var BytesSpikeCfg = Config{
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
 	Domain:   "netinternet.tr",
 	Mode:     "bytes_spike",
-	RPS:      5,
+	RPS:      50,
 	Duration: 60 * time.Second,
 } // 5 * 60 = 300 log	-- 1500-10000 response bytes
 
@@ -53,8 +53,8 @@ var NXDomainSpikeCfg = Config{
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
 	Domain:   "netinternet.tr",
 	Mode:     "nx_domain_spike",
-	RPS:      8,
-	Duration: 60 * time.Second,
+	RPS:      15,
+	Duration: 30 * time.Second,
 } // 8 * 60 = 480 log
 
 // boş olacaksa da şöyle: // 15 * 60 = 900 log
@@ -68,8 +68,8 @@ var ServfailSpikeCfg = Config{
 	URL:      "http://localhost:8080/api/v1/traffic-log/",
 	Domain:   "netinternet.tr",
 	Mode:     "servfail_spike",
-	RPS:      5,
-	Duration: 60 * time.Second,
+	RPS:      15,
+	Duration: 30 * time.Second,
 }
 
 // boş olacaksa da şöyle: // 10 * 60 = 600 log
