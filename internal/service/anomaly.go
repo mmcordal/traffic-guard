@@ -167,13 +167,7 @@ func (s *anomalyService) deepAnalyzeBucket(ctx context.Context, bucketStart time
 		return nil
 	}
 
-	enrichment, err := s.ar.GetSourceIPBucketEnrichment(
-		ctx,
-		domain,
-		bucket.SourceIP,
-		bucketStart,
-		bucketStart.Add(s.cfg.BucketWindow()),
-	)
+	enrichment, err := s.ar.GetSourceIPBucketEnrichment(ctx, domain, bucket.SourceIP, bucketStart, bucketStart.Add(s.cfg.BucketWindow()))
 	if err != nil {
 		return errors.New("anomalyService GetSourceIPBucketEnrichment error: " + err.Error())
 	}
