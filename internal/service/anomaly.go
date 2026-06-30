@@ -167,6 +167,17 @@ func (s *anomalyService) deepAnalyzeBucket(ctx context.Context, bucketStart time
 		return nil
 	}
 
+	enrichment, err := s.ar.GetSourceIPBucketEnrichment(
+		ctx,
+		domain,
+		bucket.SourceIP,
+		bucketStart,
+		bucketStart.Add(s.cfg.BucketWindow()),
+	)
+	if err != nil {
+		return errors.New("anomalyService GetSourceIPBucketEnrichment error: " + err.Error())
+	}
+
 	anomalyEvent := &model.AnomalyEvent{
 		BucketStart: bucketStart,
 
@@ -184,8 +195,10 @@ func (s *anomalyService) deepAnalyzeBucket(ctx context.Context, bucketStart time
 		ServfailCount: bucket.ServfailCount,
 		NoErrorCount:  bucket.NoErrorCount,
 
-		// QueryType --> BURAYA ULAŞMIYOR --> bunu sor gerekiyorsa çöz
-		Protocol: bucket.Protocol,
+		QueryType:    enrichment.QueryType,
+		Protocol:     bucket.Protocol,
+		LatencySumMs: enrichment.LatencySumMs,
+		AvgLatencyMs: enrichment.AvgLatencyMs,
 
 		Country: bucket.Country,
 		ASN:     bucket.ASN,

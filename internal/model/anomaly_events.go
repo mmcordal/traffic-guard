@@ -29,6 +29,9 @@ type AnomalyEvent struct {
 	QueryType QueryType `bun:",type:varchar(20),nullzero"`
 	Protocol  Protocol  `bun:",type:varchar(10),nullzero"`
 
+	LatencySumMs int64   `bun:",notnull,default:0,check:latency_sum_ms >= 0"`
+	AvgLatencyMs float64 `bun:",notnull,default:0"`
+
 	Country string `bun:",type:varchar(2),nullzero"`
 	ASN     string `bun:",type:varchar(32),nullzero"`
 }
