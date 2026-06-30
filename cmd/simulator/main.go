@@ -3,21 +3,22 @@ package main
 import (
 	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"traffic-guarder/internal/simulator"
 )
 
 func main() {
+	mode := "normal"
+	if len(os.Args) > 1 {
+		mode = os.Args[1]
+	}
 
-	/*
-		Mode'u seç uygun config Run da seçiliyor.
-		"normal" --> simulator.NormalCfg
-		"request_spike" --> simulator.RequestSpikeCfg
-		"bytes_spike" --> simulator.BytesSpikeCfg
-		"nx_domain_spike" --> simulator.NXDomainSpikeCfg
-		"servfail_spike" --> simulator.ServfailSpikeCfg
-	*/
-	err := simulator.Run(context.Background(), "servfail_spike")
-	if err != nil {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if err := simulator.Run(ctx, mode); err != nil {
 		log.Fatal(err)
 	}
 }
