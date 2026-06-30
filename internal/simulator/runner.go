@@ -8,21 +8,42 @@ import (
 )
 
 func Run(ctx context.Context, mode string) error {
-	cfg := Config{}
-
-	switch mode {
-	case "normal":
-		cfg = NormalCfg
-	case "request_spike":
-		cfg = RequestSpikeCfg
-	case "bytes_spike":
-		cfg = BytesSpikeCfg
-	case "nx_domain_spike":
-		cfg = NXDomainSpikeCfg
-	case "servfail_spike":
-		cfg = ServfailSpikeCfg
+	if mode == "mixed" {
+		return RunMixed(ctx)
 	}
 
+	cfg, err := configForMode(mode)
+	if err != nil {
+		return err
+	}
+
+	if cfg.Duration <= 0 {
+		cfg.Duration = time.Second * 10
+	}
+
+	return runConfig(ctx, cfg)
+}
+
+func configForMode(mode string) (Config, error) {
+	switch mode {
+	case "normal":
+		return NormalCfg, nil
+	case "request_spike":
+		return RequestSpikeCfg, nil
+	case "bytes_spike":
+		return BytesSpikeCfg, nil
+	case "nxdomain_spike", "nx_domain_spike":
+		cfg := NXDomainSpikeCfg
+		cfg.Mode = "nxdomain_spike"
+		return cfg, nil
+	case "servfail_spike":
+		return ServfailSpikeCfg, nil
+	default:
+		return Config{}, fmt.Errorf("unknown simulator mode: %s", mode)
+	}
+}
+
+func runConfig(ctx context.Context, cfg Config) error {
 	if cfg.URL == "" {
 		return errors.New("simulator URL is required")
 	}
@@ -31,48 +52,55 @@ func Run(ctx context.Context, mode string) error {
 		cfg.RPS = 1
 	}
 
-	if cfg.Duration <= 0 {
-		cfg.Duration = time.Second * 10
-	}
-
 	interval := time.Second / time.Duration(cfg.RPS)
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
-	timeoutCtx, cancel := context.WithTimeout(ctx, cfg.Duration)
+	runCtx := ctx
+	cancel := func() {}
+	if cfg.Duration > 0 {
+		runCtx, cancel = context.WithTimeout(ctx, cfg.Duration)
+	}
 	defer cancel()
 
 	sendCount := 0
 
 	for {
 		select {
-		case <-timeoutCtx.Done():
+		case <-runCtx.Done():
+			if errors.Is(ctx.Err(), context.Canceled) || errors.Is(ctx.Err(), context.DeadlineExceeded) {
+				return ctx.Err()
+			}
 			fmt.Printf("simulator finished, sent count: %d\n", sendCount)
 			return nil
 		case <-ticker.C:
-			log := TrafficLogPayload{}
+			log := generateLog(cfg.Mode, cfg.Domain)
 
-			switch cfg.Mode {
-			case "normal":
-				log = GenerateNormalLog(cfg.Domain)
-			case "request_spike":
-				log = GenerateRequestSpikeLog(cfg.Domain)
-			case "bytes_spike":
-				log = GenerateBytesSpikeLog(cfg.Domain)
-			case "nx_domain_spike":
-				log = GenerateNXDomainSpikeLog(cfg.Domain)
-			case "servfail_spike":
-				log = GenerateServfailSpikeLog(cfg.Domain)
-			default:
-				log = GenerateNormalLog(cfg.Domain)
-			}
-
-			err := SendLog(timeoutCtx, cfg.URL, log)
+			err := SendLog(runCtx, cfg.URL, log)
 			if err != nil {
+				if runCtx.Err() != nil {
+					return runCtx.Err()
+				}
 				return fmt.Errorf("number of logs sent so far: %d simulator failed to send log: %w", sendCount, err)
 			}
 			sendCount++
 		}
 	}
+}
 
+func generateLog(mode, domain string) TrafficLogPayload {
+	switch mode {
+	case "normal":
+		return GenerateNormalLog(domain)
+	case "request_spike":
+		return GenerateRequestSpikeLog(domain)
+	case "bytes_spike":
+		return GenerateBytesSpikeLog(domain)
+	case "nxdomain_spike", "nx_domain_spike":
+		return GenerateNXDomainSpikeLog(domain)
+	case "servfail_spike":
+		return GenerateServfailSpikeLog(domain)
+	default:
+		return GenerateNormalLog(domain)
+	}
 }
